@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import "./style.css";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -15,18 +16,67 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
 camera.position.z = 5;
 
 window.addEventListener("resize", onWindowResize);
 
+const controls = new OrbitControls(camera, renderer.domElement);
+camera.position.set(0, 10, 10);
+controls.update();
+
+const size = 100;
+const divisions = 101;
+
+const planeMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(size, size),
+  new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    color: 0x121212,
+  }),
+);
+planeMesh.rotateX(-Math.PI / 2);
+scene.add(planeMesh);
+
+const gridHelper = new THREE.GridHelper(divisions, 100);
+gridHelper.position.y = 0.03;
+scene.add(gridHelper);
+
+const highlightMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(1, 1),
+  new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    color: 0xaff,
+  }),
+);
+highlightMesh.rotateX(-Math.PI / 2);
+highlightMesh.position.addScalar(0.5);
+highlightMesh.position.y = 0.02;
+scene.add(highlightMesh);
+
+const mousePosition = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+
+window.addEventListener("mousemove", function (e) {
+  mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mousePosition, camera);
+  const intersects = raycaster.intersectObject(planeMesh);
+  if (intersects.length > 0) {
+    const highlightPos = new THREE.Vector3()
+      .copy(intersects[0].point)
+      .floor()
+      .addScalar(0.5);
+    highlightMesh.position.set(
+      highlightPos.x,
+      highlightMesh.position.y,
+      highlightPos.z,
+    );
+  }
+});
+
 function animate(time: number) {
-  cube.rotation.x = time / 2000;
-  cube.rotation.y = time / 1000;
+  controls.update();
+  renderer.render(scene, camera);
 
   renderer.render(scene, camera);
 }

@@ -89,7 +89,7 @@ let clock = new THREE.Clock();
 let delta = 0;
 let interval = 1 / 60;
 
-function animate(time: number) {
+function animate() {
   delta += clock.getDelta();
   if (delta > interval) {
     controls.update();

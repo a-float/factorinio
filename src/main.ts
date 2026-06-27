@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import "./style.css";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -38,7 +39,7 @@ planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 
 const gridHelper = new THREE.GridHelper(divisions, 100);
-gridHelper.position.y = 0.03;
+gridHelper.position.y = 1e-1;
 scene.add(gridHelper);
 
 const highlightMesh = new THREE.Mesh(
@@ -50,7 +51,7 @@ const highlightMesh = new THREE.Mesh(
 );
 highlightMesh.rotateX(-Math.PI / 2);
 highlightMesh.position.addScalar(0.5);
-highlightMesh.position.y = 0.02;
+highlightMesh.position.y = 1.1e-1;
 scene.add(highlightMesh);
 
 const mousePosition = new THREE.Vector2();
@@ -74,11 +75,30 @@ window.addEventListener("mousemove", function (e) {
   }
 });
 
-function animate(time: number) {
-  controls.update();
-  renderer.render(scene, camera);
+var stats = new Stats();
+const panels = Array.from(stats.dom.children) as HTMLElement[];
+panels.forEach((panel, index) => {
+  panel.style.display = "block";
+  panel.style.position = "absolute";
+  panel.style.top = "8px";
+  panel.style.left = `${6 + index * 85}px`;
+  document.body.appendChild(panel);
+});
 
-  renderer.render(scene, camera);
+let clock = new THREE.Clock();
+let delta = 0;
+let interval = 1 / 60;
+
+function animate(time: number) {
+  delta += clock.getDelta();
+  if (delta > interval) {
+    controls.update();
+    renderer.render(scene, camera);
+
+    renderer.render(scene, camera);
+    stats.update();
+    delta = delta % interval;
+  }
 }
 
 function onWindowResize() {

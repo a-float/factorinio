@@ -17,5 +17,5 @@ export function mouseToWorldCoordinates(
   const intersectionPoint = new THREE.Vector3();
   raycaster.ray.intersectPlane(plane, intersectionPoint);
 
-  return intersectionPoint;
+  return intersectionPoint.floor();
 }

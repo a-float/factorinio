@@ -1,13 +1,11 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
+import type { Tool } from "./ecs/resources/player-state.resource";
 
 @customElement("ui-root")
 export class RootUI extends LitElement {
-  tools = [
-    { name: "hammer", emoji: "🔨" },
-    { name: "wrench", emoji: "🔧" },
-    { name: "screwdriver", emoji: "🪛" },
-  ];
+  playerState = window.world.getResource("playerState");
 
   static styles = css`
     :host {
@@ -23,9 +21,14 @@ export class RootUI extends LitElement {
 
     button {
       font-size: 1.5rem;
+      color: white;
       aspect-ratio: 1;
       background-color: #232323;
       border: 1px solid #555;
+
+      &.active {
+        border: 1px solid cyan;
+      }
 
       &:hover {
         background-color: #121212;
@@ -33,17 +36,47 @@ export class RootUI extends LitElement {
     }
   `;
 
+  private selectTool = (tool: Tool) => {
+    console.log("You selected", tool);
+    this.playerState.activeTool = tool;
+    // TODO needs to be triggered every time the needed world state changes
+    // consider using an event listener/signal/reactive values or something
+    // good enough for now
+    this.requestUpdate();
+  };
+
+  private handleKeydown = (event: KeyboardEvent) => {
+    let num = Number(event.key) - 1;
+    if (num >= 0 && num < this.playerState.tools.length) {
+      this.selectTool(this.playerState.tools[num]);
+    }
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener("keydown", this.handleKeydown);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener("keydown", this.handleKeydown);
+  }
+
   render() {
     return html`
       <div>
-        ${this.tools.map(
+        ${this.playerState.tools.map(
           (tool) =>
             html` <button
-              @click=${() => {
-                console.log(`You selected ${tool.name}.`);
+              class=${classMap({
+                active: tool === this.playerState.activeTool,
+              })}
+              @click=${(event: Event) => {
+                event.stopPropagation();
+                this.selectTool(tool);
               }}
             >
-              ${tool.emoji}
+              ${tool.icon}
             </button>`,
         )}
       </div>

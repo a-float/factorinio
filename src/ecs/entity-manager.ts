@@ -1,8 +1,28 @@
 import type { ComponentName } from "./components/component.map";
+import { DeletedComponent } from "./components/deleted.component";
 import type { Entity } from "./entity/entity";
 
 export class EntityManager {
   private entities: Map<number, Entity> = new Map();
+  private toMarkAsDeleted: Entity[] = [];
+
+  deleteEntity(entity: Entity) {
+    this.toMarkAsDeleted.push(entity);
+  }
+
+  update() {
+    const toDelete = this.queryEntities(["deleted"]);
+    if (toDelete.length) console.log(`Deleting ${toDelete.length} entities`);
+    toDelete.forEach((entity) => {
+      this.entities.delete(entity.id);
+    });
+
+    this.toMarkAsDeleted.forEach((entity) => {
+      entity.addComponent(new DeletedComponent());
+    });
+
+    this.toMarkAsDeleted.length = 0;
+  }
 
   getEntity(id: number): Entity | undefined {
     return this.entities.get(id);

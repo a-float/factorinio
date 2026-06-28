@@ -7,6 +7,7 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { registerListeners } from "./events/event.listeners";
 import { mouseToWorldCoordinates } from "./raycast";
+import { PlayerStateResource } from "./resources/player-state.resource";
 
 export class World {
   entityManager: EntityManager = new EntityManager();
@@ -14,6 +15,7 @@ export class World {
   resources = {
     eventQueue: new EventQueueResource(),
     grid: new GridResource(100, 100),
+    playerState: new PlayerStateResource(),
   };
   camera: THREE.PerspectiveCamera;
   scene: THREE.Scene;
@@ -111,10 +113,7 @@ export class World {
         camera,
         renderer,
       );
-      const highlightPos = new THREE.Vector3()
-        .copy(intersect)
-        .floor()
-        .addScalar(0.5);
+      const highlightPos = new THREE.Vector3().copy(intersect).addScalar(0.5);
 
       highlightMesh.position.set(
         highlightPos.x,
@@ -145,5 +144,8 @@ export class World {
     for (const system of this.systems) {
       system.update(deltaTime, context);
     }
+
+    // handles deletion scheduling and flush
+    this.entityManager.update();
   }
 }

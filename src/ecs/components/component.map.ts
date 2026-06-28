@@ -1,3 +1,4 @@
+import type { DeletedComponent } from "./deleted.component";
 import type { DisplayComponent } from "./display.component";
 import type { GridOccupantComponent } from "./grid-occupant.component";
 
@@ -5,6 +6,7 @@ import type { GridOccupantComponent } from "./grid-occupant.component";
 export type ComponentMap = {
   display: InstanceType<typeof DisplayComponent>;
   gridOccupant: InstanceType<typeof GridOccupantComponent>;
+  deleted: InstanceType<typeof DeletedComponent>;
 };
 
 export type ComponentName = keyof ComponentMap;

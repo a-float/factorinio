@@ -6,5 +6,7 @@ import { RenderSystem } from "./ecs/systems/render.system";
 const world = new World();
 world.setup();
 
+await import("./ui");
+
 world.addSystem(new BuildSystem());
 world.addSystem(new RenderSystem());

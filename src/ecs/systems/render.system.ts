@@ -2,6 +2,7 @@ import type { System, SystemContext } from "./system";
 import * as THREE from "three";
 
 export class RenderSystem implements System {
+  // TODO store mesh per type not entity
   entityMeshes: Map<number, THREE.Mesh> = new Map();
 
   update(_deltaTime: number, context: SystemContext): void {
@@ -12,21 +13,29 @@ export class RenderSystem implements System {
 
     for (const entity of entities) {
       const displayComponent = entity.getComponent("display")!;
-      const { x, y } = entity.getComponent("gridOccupant")!;
+      const { x, y, width, height } = entity.getComponent("gridOccupant")!;
+      const isDeleted = entity.getComponent("deleted");
 
-      if (this.entityMeshes.has(entity.id)) continue;
+      if (!this.entityMeshes.has(entity.id)) {
+        const geometry = new THREE.BoxGeometry(width, 1, height);
+        // Place origin in "top left" corner
+        geometry.translate(width / 2, 0, height / 2);
 
-      const size = 0.6;
-      const geometry = new THREE.BoxGeometry(size, size, size);
+        const material = new THREE.MeshBasicMaterial({
+          color: displayComponent.color,
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(x, geometry.parameters.height / 2 + 0.01, y);
+        context.scene.add(cube);
 
-      const material = new THREE.MeshBasicMaterial({
-        color: displayComponent.color,
-      });
-      const cube = new THREE.Mesh(geometry, material);
-      cube.position.set(x, geometry.parameters.height / 2 + 0.01, y);
-      context.scene.add(cube);
+        this.entityMeshes.set(entity.id, cube);
+      }
 
-      this.entityMeshes.set(entity.id, cube);
+      if (isDeleted) {
+        const mesh = this.entityMeshes.get(entity.id)!;
+        context.scene.remove(mesh);
+        this.entityMeshes.delete(entity.id);
+      }
     }
   }
 }

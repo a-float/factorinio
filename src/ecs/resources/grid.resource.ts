@@ -1,8 +1,9 @@
+import type { Entity } from "../entity/entity";
 import type { Resource } from "./resource";
 
 export class GridResource implements Resource {
   // store occupied cells in a Set keyed by "x,y" to act as a hashmap
-  private occupied = new Set<string>();
+  private occupied = new Map<string, Entity["id"]>();
 
   constructor(
     public width: number,
@@ -30,10 +31,26 @@ export class GridResource implements Resource {
     );
   }
 
+  public getEntityIdAtCell(x: number, y: number): Entity["id"] | undefined {
+    return this.occupied.get(`${x},${y}`);
+  }
+
   // ignores bounds for now
-  public occupy(x: number, y: number, width: number, height: number): void {
+  public occupy(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    entity: Entity,
+  ): void {
     this.getCellsFromRange(x, y, width, height).forEach(([cx, cy]) => {
-      this.occupied.add(`${cx},${cy}`);
+      this.occupied.set(`${cx},${cy}`, entity.id);
+    });
+  }
+
+  public free(x: number, y: number, width: number, height: number) {
+    this.getCellsFromRange(x, y, width, height).forEach(([cx, cy]) => {
+      this.occupied.delete(`${cx},${cy}`);
     });
   }
 }

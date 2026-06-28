@@ -58,7 +58,7 @@ export class World {
       delta += clock.getDelta();
       if (delta > interval) {
         controls.update();
-        this.renderer.render(this.scene, camera);
+        this.renderer.render(this.scene, this.camera);
 
         this.update(delta); // TODO check if the right
         stats.update();
@@ -80,11 +80,12 @@ export class World {
 
     const planeMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      new THREE.MeshBasicMaterial({
+      new THREE.MeshStandardMaterial({
         side: THREE.DoubleSide,
         color: 0x121212,
       }),
     );
+    planeMesh.receiveShadow = true;
     planeMesh.rotateX(-Math.PI / 2);
     this.scene.add(planeMesh);
 
@@ -104,14 +105,24 @@ export class World {
     highlightMesh.position.y = 1.1e-1;
     this.scene.add(highlightMesh);
 
-    const camera = this.camera;
-    const renderer = this.renderer;
-    window.addEventListener("mousemove", function (e) {
+    const sunlight = new THREE.DirectionalLight(0xffffff, 1);
+    sunlight.lookAt(5, 0, 10);
+    sunlight.position.set(10, 30, 20);
+    sunlight.castShadow = true;
+    this.scene.add(sunlight);
+
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+
+    sunlight.shadow.mapSize.width = 2048;
+    sunlight.shadow.mapSize.height = 2048;
+
+    window.addEventListener("mousemove", (e) => {
       const intersect = mouseToWorldCoordinates(
         e.clientX,
         e.clientY,
-        camera,
-        renderer,
+        this.camera,
+        this.renderer,
       );
       const highlightPos = new THREE.Vector3().copy(intersect).addScalar(0.5);
 

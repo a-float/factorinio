@@ -1,4 +1,4 @@
-import type * as THREE from "three";
+import * as THREE from "three";
 
 /**
  * Prototypes are blueprints for entity creation.
@@ -10,30 +10,27 @@ export type EntityPrototype = {
 };
 
 export type BuildingPrototype = EntityPrototype & {
-  width: number;
-  height: number;
+  size: THREE.Vector3;
   color: THREE.ColorRepresentation;
 };
 
 export const buildingPrototypes = {
   miner: {
     name: "Basic Miner",
-    width: 2,
-    height: 2,
+    size: new THREE.Vector3(2, 1, 2),
     color: 0x808080,
     icon: "MIN",
   },
   factory: {
     name: "Basic Factory",
-    width: 3,
-    height: 3,
+    size: new THREE.Vector3(3, 1.5, 2),
+
     color: 0x55bb88,
     icon: "FAC",
   },
   belt: {
     name: "Basic Belt",
-    width: 1,
-    height: 1,
+    size: new THREE.Vector3(1, 0.2, 1),
     color: 0xaabbcc,
     icon: "BEL",
   },

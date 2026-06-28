@@ -17,14 +17,21 @@ export class RenderSystem implements System {
       const isDeleted = entity.getComponent("deleted");
 
       if (!this.entityMeshes.has(entity.id)) {
-        const geometry = new THREE.BoxGeometry(width, 1, height);
+        const scale = 0.8;
+        const geometry = new THREE.BoxGeometry(
+          width,
+          displayComponent.height,
+          height,
+        ).scale(scale, 1, scale);
         // Place origin in "top left" corner
         geometry.translate(width / 2, 0, height / 2);
 
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshLambertMaterial({
           color: displayComponent.color,
         });
         const cube = new THREE.Mesh(geometry, material);
+        cube.castShadow = true;
+        cube.receiveShadow = true;
         cube.position.set(x, geometry.parameters.height / 2 + 0.01, y);
         context.scene.add(cube);
 

@@ -12,8 +12,8 @@ export class BuildingEntity extends Entity {
     const prototype = buildingPrototypes[buildingType];
     super(prototype);
     this.addComponent(
-      new GridOccupantComponent(x, y, prototype.width, prototype.height),
+      new GridOccupantComponent(x, y, prototype.size.x, prototype.size.z),
     );
-    this.addComponent(new DisplayComponent(prototype.color));
+    this.addComponent(new DisplayComponent(prototype.size.y, prototype.color));
   }
 }

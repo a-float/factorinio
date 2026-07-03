@@ -38,7 +38,7 @@ export class RootUI extends LitElement {
 
   private selectTool = (tool: Tool) => {
     console.log("You selected", tool);
-    this.playerState.activeTool = tool;
+    this.playerState.setActiveTool(tool);
     // TODO needs to be triggered every time the needed world state changes
     // consider using an event listener/signal/reactive values or something
     // good enough for now
@@ -69,7 +69,7 @@ export class RootUI extends LitElement {
           (tool) =>
             html` <button
               class=${classMap({
-                active: tool === this.playerState.activeTool,
+                active: tool === this.playerState.getActiveTool(),
               })}
               @click=${(event: Event) => {
                 event.stopPropagation();

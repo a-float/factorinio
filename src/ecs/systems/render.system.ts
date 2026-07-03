@@ -24,7 +24,7 @@ export class RenderSystem implements System {
           height,
         ).scale(scale, 1, scale);
         // Place origin in "top left" corner
-        geometry.translate(width / 2, 0, height / 2);
+        geometry.translate(width / 2, displayComponent.height / 2, height / 2);
 
         const material = new THREE.MeshLambertMaterial({
           color: displayComponent.color,
@@ -32,7 +32,7 @@ export class RenderSystem implements System {
         const cube = new THREE.Mesh(geometry, material);
         cube.castShadow = true;
         cube.receiveShadow = true;
-        cube.position.set(x, geometry.parameters.height / 2 + 0.01, y);
+        cube.position.set(x, 0, y);
         context.scene.add(cube);
 
         this.entityMeshes.set(entity.id, cube);

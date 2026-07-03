@@ -22,7 +22,7 @@ export class BuildSystem extends System {
   }
 
   private updateEvents(context: SystemContext) {
-    const { activeTool } = context.getResource("playerState");
+    const activeTool = context.getResource("playerState").getActiveTool();
     const eventQueue = context.getResource("eventQueue");
 
     for (const event of eventQueue.userEvents) {

@@ -1,7 +1,7 @@
 import type { GameEvent, UserEvent } from "../events/event";
-import type { Resource } from "./resource";
+import { Resource } from "./resource";
 
-export class EventQueueResource implements Resource {
+export class EventQueueResource extends Resource {
   events: GameEvent[] = [];
   userEvents: UserEvent[] = [];
 }

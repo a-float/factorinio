@@ -1,14 +1,16 @@
 import type { Entity } from "../entity/entity";
-import type { Resource } from "./resource";
+import { Resource } from "./resource";
 
-export class GridResource implements Resource {
+export class GridResource extends Resource {
   // store occupied cells in a Set keyed by "x,y" to act as a hashmap
   private occupied = new Map<string, Entity["id"]>();
 
   constructor(
     public width: number,
     public height: number,
-  ) {}
+  ) {
+    super();
+  }
 
   private getCellsFromRange(
     x: number,

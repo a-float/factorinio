@@ -5,4 +5,5 @@ export type GameEvent = {
 
 export type UserEvent =
   | { type: "click"; payload: { button: number; x: number; y: number } }
-  | { type: "keypress"; payload: { key: string } };
+  | { type: "keypress"; payload: { key: string } }
+  | { type: "mousemove"; payload: { x: number; y: number } };

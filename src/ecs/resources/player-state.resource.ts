@@ -1,5 +1,5 @@
 import { buildingPrototypes } from "../prototype";
-import type { Resource } from "./resource";
+import { Resource } from "./resource";
 
 export type Tool =
   | {
@@ -10,7 +10,7 @@ export type Tool =
     }
   | { type: "destroy"; icon: string };
 
-export class PlayerStateResource implements Resource {
+export class PlayerStateResource extends Resource {
   readonly tools: Tool[] = [
     ...Object.entries(buildingPrototypes).map(
       ([k, v]) =>

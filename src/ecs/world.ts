@@ -6,7 +6,6 @@ import type { System } from "./systems/system";
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { registerListeners } from "./events/event.listeners";
-import { mouseToWorldCoordinates } from "./raycast";
 import { PlayerStateResource } from "./resources/player-state.resource";
 
 export class World {
@@ -104,70 +103,6 @@ export class World {
 
     sunlight.shadow.mapSize.width = 2048;
     sunlight.shadow.mapSize.height = 2048;
-
-    this.setupHightlight();
-  }
-
-  private setupHightlight() {
-    const meshMap = new Map<string, THREE.Mesh>();
-
-    const getMesh = () => {
-      const tool = this.resources.playerState.getActiveTool();
-      if (!meshMap.has(tool.icon)) {
-        if (tool.type === "build") {
-          const scale = 0.79;
-          const size = tool.prototype.size;
-          const geometry = new THREE.BoxGeometry(...size.toArray()).scale(
-            scale,
-            0.95,
-            scale,
-          );
-
-          geometry.translate(size.x / 2, size.y / 2, size.z / 2);
-
-          const material = new THREE.MeshLambertMaterial({
-            color: new THREE.Color(tool.prototype.color).multiplyScalar(1.5),
-          });
-          const cube = new THREE.Mesh(geometry, material);
-          cube.castShadow = true;
-          cube.receiveShadow = true;
-          meshMap.set(tool.icon, cube);
-        } else {
-          const deleteMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(1, 1),
-            new THREE.MeshBasicMaterial({
-              side: THREE.DoubleSide,
-              color: 0xff5555,
-            }),
-          );
-          deleteMesh.geometry.rotateX(-Math.PI / 2);
-          deleteMesh.geometry.translate(0.5, 0, 0.5);
-          meshMap.set(tool.icon, deleteMesh);
-        }
-      }
-      return meshMap.get(tool.icon)!;
-    };
-
-    let mesh = getMesh();
-    this.scene.add(mesh);
-
-    window.addEventListener("activeToolChanged", () => {
-      const pos = mesh.position.clone();
-      this.scene.remove(mesh);
-      mesh = getMesh();
-      mesh.position.set(pos.x, 0, pos.z);
-      this.scene.add(mesh);
-    });
-
-    window.addEventListener("mousemove", (e) => {
-      const intersect = mouseToWorldCoordinates(
-        e.clientX,
-        e.clientY,
-        this.camera,
-        this.renderer,
-      );
-      mesh.position.set(intersect.x, 0.0, intersect.z);
-    });
   }
 
   getResource<K extends keyof typeof this.resources>(
@@ -192,7 +127,10 @@ export class World {
       system.update(deltaTime, context);
     }
 
-    // handles deletion scheduling and flush
+    // Handles deletion scheduling and flush
     this.entityManager.update();
+
+    // Clear user events after processing
+    this.resources.eventQueue.userEvents.length = 0;
   }
 }

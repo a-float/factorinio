@@ -14,8 +14,15 @@ export function registerListeners() {
 
   window.addEventListener("keydown", (event) => {
     queue.push({
-      type: "keydown",
+      type: "keypress",
       payload: { key: event.key },
+    });
+  });
+
+  window.addEventListener("mousemove", (event) => {
+    queue.push({
+      type: "mousemove",
+      payload: { x: event.clientX, y: event.clientY },
     });
   });
 }

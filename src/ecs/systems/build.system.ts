@@ -42,9 +42,6 @@ export class BuildSystem extends System {
         this.handleDestroy(event, context);
       }
     }
-
-    // Clear user events after processing
-    eventQueue.userEvents.length = 0;
   }
 
   private handleBuild(

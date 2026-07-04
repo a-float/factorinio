@@ -3,6 +3,7 @@ import { World } from "./ecs/world";
 import { BuildSystem } from "./ecs/systems/build.system";
 import { RenderSystem } from "./ecs/systems/render.system";
 import { CursorSystem } from "./ecs/systems/cursor.system";
+import { GridDisplaySystem } from "./ecs/systems/grid-display.system";
 
 const world = new World();
 world.setup();
@@ -12,3 +13,4 @@ await import("./ui");
 world.addSystem(new BuildSystem());
 world.addSystem(new RenderSystem());
 world.addSystem(new CursorSystem());
+world.addSystem(new GridDisplaySystem());

@@ -7,6 +7,8 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { registerListeners } from "./events/event.listeners";
 import { PlayerStateResource } from "./resources/player-state.resource";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+import { ConfigResource } from "./resources/config.resource";
 
 export class World {
   entityManager: EntityManager = new EntityManager();
@@ -15,6 +17,7 @@ export class World {
     eventQueue: new EventQueueResource(),
     grid: new GridResource(),
     playerState: new PlayerStateResource(),
+    config: new ConfigResource(),
   };
   camera: THREE.PerspectiveCamera;
   scene: THREE.Scene;
@@ -103,6 +106,8 @@ export class World {
 
     sunlight.shadow.mapSize.width = 2048;
     sunlight.shadow.mapSize.height = 2048;
+
+    this.setupGUI();
   }
 
   getResource<K extends keyof typeof this.resources>(
@@ -132,5 +137,12 @@ export class World {
 
     // Clear user events after processing
     this.resources.eventQueue.userEvents.length = 0;
+  }
+
+  // https://lil-gui.georgealways.com/
+  private setupGUI() {
+    const gui = new GUI();
+
+    gui.add(this.resources.config, "enableGridDebug").name("Enable Grid Debug");
   }
 }

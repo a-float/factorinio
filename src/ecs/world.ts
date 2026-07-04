@@ -1,4 +1,4 @@
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { MapControls } from "three/examples/jsm/Addons.js";
 import { EntityManager } from "./entity-manager";
 import { EventQueueResource } from "./resources/event-queue.resource";
 import { GridResource } from "./resources/grid.resource";
@@ -59,7 +59,7 @@ export class World {
     const animate = () => {
       delta += clock.getDelta();
       if (delta > interval) {
-        controls.update();
+        controls.update(delta);
         this.renderer.render(this.scene, this.camera);
 
         this.update(delta); // TODO check if the right
@@ -73,9 +73,8 @@ export class World {
 
     this.camera.position.z = 5;
 
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    const controls = new MapControls(this.camera, this.renderer.domElement);
     this.camera.position.set(0, 10, 10);
-    controls.update();
 
     const size = 100;
     const divisions = 100;
@@ -142,6 +141,14 @@ export class World {
   // https://lil-gui.georgealways.com/
   private setupGUI() {
     const gui = new GUI();
+
+    gui.domElement.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    gui.domElement.addEventListener("mousemove", (e) => {
+      e.stopPropagation();
+    });
 
     gui.add(this.resources.config, "enableGridDebug").name("Enable Grid Debug");
   }

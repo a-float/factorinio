@@ -24,14 +24,12 @@ export class NetworkSystem extends System {
   update(_deltaTime: number, context: SystemContext): void {
     const events = context.getResource("eventQueue").events;
 
-    for (const buildEvent of events.filter((e) => e.type === "build")) {
-      const building = buildEvent.payload.entity;
+    for (const event of events.filter(
+      (e) => e.type === "build" || e.type === "destroy",
+    )) {
+      const building = event.payload.entity;
       const networkComp = building.getComponent("network");
       if (!networkComp) continue;
-
-      console.log(
-        `Building ${building.id} has network component with id ${networkComp.networkId}`,
-      );
 
       // Check neighbours and update network connections
       const grid = context.getResource("grid");
@@ -48,8 +46,13 @@ export class NetworkSystem extends System {
         if (!entity) continue;
         const otherNetworkComp = entity.getComponent("network");
         if (!otherNetworkComp) continue;
-        networkComp.neighbours[dir] = neighbourId;
-        otherNetworkComp.neighbours[getOppositeDirection(dir)] = building.id;
+
+        if (event.type === "build") {
+          networkComp.neighbours[dir] = neighbourId;
+          otherNetworkComp.neighbours[getOppositeDirection(dir)] = building.id;
+        } else if (event.type === "destroy") {
+          otherNetworkComp.neighbours[getOppositeDirection(dir)] = null;
+        }
         entity.getComponent("display")?.setDirty(true);
       }
       console.log("Found neighbours", networkComp.neighbours);

@@ -1,9 +1,8 @@
 import type { BuildingEntity } from "../entity/building.entity";
 
-export type GameEvent = {
-  type: "build";
-  payload: { entity: BuildingEntity };
-};
+export type GameEvent =
+  | { type: "build"; payload: { entity: BuildingEntity } }
+  | { type: "destroy"; payload: { entity: BuildingEntity } };
 
 export type UserEvent =
   | { type: "click"; payload: { button: number; x: number; y: number } }

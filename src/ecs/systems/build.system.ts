@@ -91,6 +91,10 @@ export class BuildSystem extends System {
     const entity = context.entityManager.getEntity(entityId);
     if (!entity) return;
 
+    context.getResource("eventQueue").events.push({
+      type: "destroy",
+      payload: { entity },
+    });
     entity.addComponent(new DeletedComponent());
   }
 }

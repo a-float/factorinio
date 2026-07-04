@@ -13,12 +13,10 @@ export class CursorSystem extends System {
   private getMesh = (tool: Tool) => {
     if (!this.meshMap.has(tool.icon)) {
       if (tool.type === "build") {
-        const scale = 0.79;
         const size = tool.prototype.size;
-        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z).scale(
-          scale,
-          0.95,
-          scale,
+        const margin = new THREE.Vector3(0.3, 0.01, 0.3);
+        const geometry = new THREE.BoxGeometry(
+          ...size.clone().sub(margin).toArray(),
         );
 
         geometry.translate(size.x / 2, size.y / 2, size.z / 2);

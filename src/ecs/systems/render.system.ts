@@ -17,12 +17,10 @@ export class RenderSystem implements System {
       const isDeleted = entity.getComponent("deleted");
 
       if (!this.entityMeshes.has(entity.id)) {
-        const scale = 0.8;
-        const geometry = new THREE.BoxGeometry(
-          width,
-          displayComponent.height,
-          height,
-        ).scale(scale, 1, scale);
+        const margin = new THREE.Vector3(0.3, 0.01, 0.3);
+        const size = new THREE.Vector3(width, displayComponent.height, height);
+        const geometry = new THREE.BoxGeometry(...size.sub(margin).toArray());
+
         // Place origin in "top left" corner
         geometry.translate(width / 2, displayComponent.height / 2, height / 2);
 

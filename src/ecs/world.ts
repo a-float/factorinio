@@ -13,7 +13,7 @@ export class World {
   systems: System[] = [];
   resources = {
     eventQueue: new EventQueueResource(),
-    grid: new GridResource(100, 100),
+    grid: new GridResource(),
     playerState: new PlayerStateResource(),
   };
   camera: THREE.PerspectiveCamera;

@@ -45,10 +45,15 @@ export class RootUI extends LitElement {
     this.requestUpdate();
   };
 
+  // TODO who handles keypressed: ui or event resource?
   private handleKeydown = (event: KeyboardEvent) => {
     let num = Number(event.key) - 1;
     if (num >= 0 && num < this.playerState.tools.length) {
       this.selectTool(this.playerState.tools[num]);
+    }
+
+    if (event.key === "r") {
+      this.playerState.rotate();
     }
   };
 

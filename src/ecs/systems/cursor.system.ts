@@ -1,4 +1,5 @@
-import { mouseToWorldCoordinates } from "../raycast";
+import { getRotatedFootprint } from "../components/grid-occupant.component";
+import { getPointerWorldPosition, type PointerCoordinates } from "../raycast";
 import type { Tool } from "../resources/player-state.resource";
 import { System, type SystemContext } from "./system";
 import * as THREE from "three";
@@ -7,13 +8,14 @@ export class CursorSystem extends System {
   private prevTool: Tool | null = null;
   private meshMap = new Map<string, THREE.Mesh>();
   private mesh: THREE.Mesh | null = null;
+  private lastPointer: PointerCoordinates | null = null;
 
   private getMesh = (tool: Tool) => {
     if (!this.meshMap.has(tool.icon)) {
       if (tool.type === "build") {
         const scale = 0.79;
         const size = tool.prototype.size;
-        const geometry = new THREE.BoxGeometry(...size.toArray()).scale(
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z).scale(
           scale,
           0.95,
           scale,
@@ -37,7 +39,7 @@ export class CursorSystem extends System {
           }),
         );
         deleteMesh.geometry.rotateX(-Math.PI / 2);
-        deleteMesh.geometry.translate(0.5, 0, 0.5);
+        deleteMesh.geometry.translate(0.5, 0.001, 0.5);
         this.meshMap.set(tool.icon, deleteMesh);
       }
     }
@@ -48,29 +50,53 @@ export class CursorSystem extends System {
     const events = context.getResource("eventQueue").userEvents;
     const playerState = context.getResource("playerState");
     const activeTool = playerState.getActiveTool();
+    const rotation = playerState.getRotation();
 
     if (this.prevTool !== activeTool) {
-      const newMesh = this.getMesh(activeTool);
-      if (this.mesh) {
-        context.scene.remove(this.mesh);
-        newMesh.position.copy(this.mesh.position);
-      }
-      context.scene.add(newMesh);
-      this.mesh = newMesh;
+      if (this.mesh) context.scene.remove(this.mesh);
+      this.mesh = this.getMesh(activeTool);
+      context.scene.add(this.mesh);
       this.prevTool = activeTool;
     }
 
-    const lastMove = events.findLast((event) => event.type === "mousemove");
+    if (!this.mesh) return;
 
+    const lastMove = events.findLast((event) => event.type === "mousemove");
     if (lastMove) {
-      const { x, y } = lastMove.payload;
-      const intersect = mouseToWorldCoordinates(
-        x,
-        y,
-        context.camera,
-        context.renderer,
+      this.lastPointer = lastMove.payload;
+    }
+
+    if (!this.lastPointer) return;
+
+    const intersect = getPointerWorldPosition(
+      this.lastPointer,
+      context.camera,
+      context.renderer,
+    );
+
+    if (activeTool.type === "build") {
+      let diff = new THREE.Vector3();
+      if (rotation === 1) {
+        diff.set(1, 0, 0);
+      } else if (rotation === 2) {
+        diff.set(1, 0, 1);
+      } else if (rotation === 3) {
+        diff.set(0, 0, 1);
+      }
+
+      const { width, height } = getRotatedFootprint(
+        activeTool.prototype.size.x,
+        activeTool.prototype.size.z,
+        rotation,
       );
-      this.mesh?.position.set(intersect.x, 0.0, intersect.z);
+
+      diff = diff.multiply({ x: width, y: 0, z: height });
+
+      this.mesh.rotation.y = (-rotation * Math.PI) / 2;
+      this.mesh.position.set(intersect.x, 0.0, intersect.z);
+      this.mesh.position.add(diff);
+    } else {
+      this.mesh.position.set(intersect.x, 0.0, intersect.z);
     }
   }
 }

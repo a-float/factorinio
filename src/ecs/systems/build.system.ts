@@ -1,6 +1,6 @@
 import { BuildingEntity } from "../entity/building.entity";
 import { DeletedComponent } from "../components/deleted.component";
-import { mouseToWorldCoordinates } from "../raycast";
+import { getPointerWorldPosition } from "../raycast";
 import { System, type SystemContext } from "./system";
 import type { Tool } from "../resources/player-state.resource";
 import type { UserEvent } from "../events/event";
@@ -49,16 +49,16 @@ export class BuildSystem extends System {
     tool: Tool & { type: "build" },
     context: SystemContext,
   ) {
+    const rotation = context.getResource("playerState").getRotation();
     const grid = context.getResource("grid");
-    const pos = mouseToWorldCoordinates(
-      event.payload.x,
-      event.payload.y,
+    const pos = getPointerWorldPosition(
+      event.payload,
       context.camera,
       context.renderer,
     );
 
     // TODO do not create entity if not needed
-    const building = new BuildingEntity(pos.x, pos.z, tool.building);
+    const building = new BuildingEntity(pos.x, pos.z, rotation, tool.building);
     const { width, height } = building.getComponent("gridOccupant")!;
 
     if (grid.isEmpty(pos.x, pos.z, width, height)) {
@@ -76,9 +76,8 @@ export class BuildSystem extends System {
     context: SystemContext,
   ) {
     const grid = context.getResource("grid");
-    const pos = mouseToWorldCoordinates(
-      event.payload.x,
-      event.payload.y,
+    const pos = getPointerWorldPosition(
+      event.payload,
       context.camera,
       context.renderer,
     );

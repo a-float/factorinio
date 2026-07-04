@@ -2,14 +2,11 @@ import type { Entity } from "../entity/entity";
 import { Resource } from "./resource";
 
 export class GridResource extends Resource {
-  // store occupied cells in a Set keyed by "x,y" to act as a hashmap
+  // store occupied cells in a Map keyed by "x,y" to act as a hashmap
   private occupied = new Map<string, Entity["id"]>();
 
-  constructor(
-    public width: number,
-    public height: number,
-  ) {
-    super();
+  public get occupiedCells(): IterableIterator<[string, Entity["id"]]> {
+    return this.occupied.entries();
   }
 
   private getCellsFromRange(

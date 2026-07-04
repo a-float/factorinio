@@ -1,5 +1,10 @@
 import * as THREE from "three";
 
+export type PointerCoordinates = {
+  x: number;
+  y: number;
+};
+
 export function mouseToWorldCoordinates(
   mouseX: number,
   mouseY: number,
@@ -18,4 +23,12 @@ export function mouseToWorldCoordinates(
   raycaster.ray.intersectPlane(plane, intersectionPoint);
 
   return intersectionPoint.floor();
+}
+
+export function getPointerWorldPosition(
+  pointer: PointerCoordinates,
+  camera: THREE.Camera,
+  renderer: THREE.WebGLRenderer,
+): THREE.Vector3 {
+  return mouseToWorldCoordinates(pointer.x, pointer.y, camera, renderer);
 }

@@ -23,7 +23,7 @@ export const buildingPrototypes = {
   },
   factory: {
     name: "Basic Factory",
-    size: new THREE.Vector3(3, 1.5, 2),
+    size: new THREE.Vector3(5, 1.5, 2),
 
     color: 0x55bb88,
     icon: "FAC",

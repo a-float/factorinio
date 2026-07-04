@@ -22,6 +22,7 @@ export class World {
   camera: THREE.PerspectiveCamera;
   scene: THREE.Scene;
   renderer: THREE.WebGLRenderer;
+  controls: MapControls;
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -29,6 +30,8 @@ export class World {
     this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     this.renderer = new THREE.WebGLRenderer({ canvas });
+    this.controls = new MapControls(this.camera, this.renderer.domElement);
+
     window.world = this;
     registerListeners();
   }
@@ -59,7 +62,7 @@ export class World {
     const animate = () => {
       delta += clock.getDelta();
       if (delta > interval) {
-        controls.update(delta);
+        this.controls.update(delta);
         this.renderer.render(this.scene, this.camera);
 
         this.update(delta); // TODO check if the right
@@ -71,9 +74,6 @@ export class World {
     this.renderer.setAnimationLoop(animate);
     document.body.appendChild(this.renderer.domElement);
 
-    this.camera.position.z = 5;
-
-    const controls = new MapControls(this.camera, this.renderer.domElement);
     this.camera.position.set(0, 10, 10);
 
     const size = 100;
@@ -142,6 +142,13 @@ export class World {
   private setupGUI() {
     const gui = new GUI();
 
+    const commands = {
+      resetCamera: () => {
+        this.camera.position.set(0, 10, 10);
+        this.controls.target.set(0, 0, 0);
+      },
+    };
+
     gui.domElement.addEventListener("click", (e) => {
       e.stopPropagation();
     });
@@ -151,5 +158,6 @@ export class World {
     });
 
     gui.add(this.resources.config, "enableGridDebug").name("Enable Grid Debug");
+    gui.add(commands, "resetCamera").name("Reset Camera");
   }
 }

@@ -135,7 +135,7 @@ export class World {
     this.entityManager.update();
 
     // Clear user events after processing
-    this.resources.eventQueue.userEvents.length = 0;
+    this.resources.eventQueue.clear();
   }
 
   // https://lil-gui.georgealways.com/

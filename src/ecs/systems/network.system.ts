@@ -1,0 +1,58 @@
+import { System, type SystemContext } from "./system";
+
+const NEIGHBOR_OFFSETS = {
+  top: { dx: 0, dy: -1 },
+  right: { dx: 1, dy: 0 },
+  bottom: { dx: 0, dy: 1 },
+  left: { dx: -1, dy: 0 },
+} as const;
+
+function getOppositeDirection(dir: keyof typeof NEIGHBOR_OFFSETS) {
+  switch (dir) {
+    case "bottom":
+      return "top";
+    case "top":
+      return "bottom";
+    case "right":
+      return "left";
+    case "left":
+      return "right";
+  }
+}
+
+export class NetworkSystem extends System {
+  update(_deltaTime: number, context: SystemContext): void {
+    const events = context.getResource("eventQueue").events;
+
+    for (const buildEvent of events.filter((e) => e.type === "build")) {
+      const building = buildEvent.payload.entity;
+      const networkComp = building.getComponent("network");
+      if (!networkComp) continue;
+
+      console.log(
+        `Building ${building.id} has network component with id ${networkComp.networkId}`,
+      );
+
+      // Check neighbours and update network connections
+      const grid = context.getResource("grid");
+      const { x, y, width, height } = building.getComponent("gridOccupant")!;
+
+      for (const dir of ["top", "right", "bottom", "left"] as const) {
+        const offset = NEIGHBOR_OFFSETS[dir];
+        const neighbourId = grid.getEntityIdAtCell(
+          x + offset.dx * width,
+          y + offset.dy * height,
+        );
+        if (!neighbourId) continue;
+        const entity = context.entityManager.getEntity(neighbourId);
+        if (!entity) continue;
+        const otherNetworkComp = entity.getComponent("network");
+        if (!otherNetworkComp) continue;
+        networkComp.neighbours[dir] = neighbourId;
+        otherNetworkComp.neighbours[getOppositeDirection(dir)] = building.id;
+        entity.getComponent("display")?.setDirty(true);
+      }
+      console.log("Found neighbours", networkComp.neighbours);
+    }
+  }
+}

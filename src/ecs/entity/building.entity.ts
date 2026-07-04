@@ -3,6 +3,7 @@ import {
   getRotatedFootprint,
   GridOccupantComponent,
 } from "../components/grid-occupant.component";
+import { NetworkComponent } from "../components/network.component";
 import { buildingPrototypes } from "../prototype";
 import type { Rotation } from "../resources/player-state.resource";
 import { Entity } from "./entity";
@@ -32,5 +33,10 @@ export class BuildingEntity extends Entity {
       ),
     );
     this.addComponent(new DisplayComponent(prototype.size.y, prototype.color));
+    
+    // TODO Don't base it on name
+    if (prototype.name === "Basic Belt") {
+      this.addComponent(new NetworkComponent());
+    }
   }
 }

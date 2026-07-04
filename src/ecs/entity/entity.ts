@@ -3,7 +3,7 @@ import type { ComponentMap } from "../components/component.map.ts";
 import type { EntityPrototype } from "../prototype";
 
 export class Entity {
-  private static internalIdCounter = 0;
+  private static internalIdCounter = 1;
   readonly name: string;
   readonly id: number;
   private components = new Map<string, Component>();

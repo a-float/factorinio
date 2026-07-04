@@ -1,6 +1,8 @@
+import type { BuildingEntity } from "../entity/building.entity";
+
 export type GameEvent = {
   type: "build";
-  payload: { entityId: number; buildingType: string };
+  payload: { entity: BuildingEntity };
 };
 
 export type UserEvent =

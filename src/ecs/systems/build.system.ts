@@ -64,6 +64,10 @@ export class BuildSystem extends System {
     if (grid.isEmpty(pos.x, pos.z, width, height)) {
       console.log(`Building a ${building.name} with id ${building.id}`);
       grid.occupy(pos.x, pos.z, width, height, building);
+      context.getResource("eventQueue").events.push({
+        type: "build",
+        payload: { entity: building },
+      });
       context.entityManager.addEntity(building);
     } else {
       console.log("No place for the building");
@@ -83,7 +87,7 @@ export class BuildSystem extends System {
     );
 
     const entityId = grid.getEntityIdAtCell(pos.x, pos.z);
-    if (entityId === undefined) return;
+    if (!entityId) return;
     const entity = context.entityManager.getEntity(entityId);
     if (!entity) return;
 

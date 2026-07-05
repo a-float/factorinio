@@ -1,3 +1,4 @@
+import type { BeltComponent } from "./belt.component";
 import type { DeletedComponent } from "./deleted.component";
 import type { DisplayComponent } from "./display.component";
 import type { GridOccupantComponent } from "./grid-occupant.component";
@@ -9,6 +10,7 @@ export type ComponentMap = {
   gridOccupant: InstanceType<typeof GridOccupantComponent>;
   deleted: InstanceType<typeof DeletedComponent>;
   network: InstanceType<typeof NetworkComponent>;
+  belt: InstanceType<typeof BeltComponent>;
 };
 
 export type ComponentName = keyof ComponentMap;

@@ -24,7 +24,6 @@ export const buildingPrototypes = {
   factory: {
     name: "Basic Factory",
     size: new THREE.Vector3(5, 1.5, 2),
-
     color: 0x55bb88,
     icon: "FAC",
   },
@@ -32,6 +31,12 @@ export const buildingPrototypes = {
     name: "Basic Belt",
     size: new THREE.Vector3(1, 0.2, 1),
     color: 0xaabbcc,
-    icon: "BEL",
+    icon: "BELT",
+  },
+  pipe: {
+    name: "Basic Pipe",
+    size: new THREE.Vector3(1, 0.2, 1),
+    color: 0xaaaa22,
+    icon: "PIPE",
   },
 } as const satisfies Record<string, BuildingPrototype>;

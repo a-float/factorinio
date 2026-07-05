@@ -1,3 +1,4 @@
+import type { BeltComponent } from "../components/belt.component";
 import type { DisplayComponent } from "../components/display.component";
 import type { GridOccupantComponent } from "../components/grid-occupant.component";
 import type { NetworkComponent } from "../components/network.component";
@@ -33,25 +34,26 @@ export class RenderSystem implements System {
         }
 
         const networkComponent = entity.getComponent("network");
+        const beltComponent = entity.getComponent("belt");
         const newMesh = networkComponent
-          ? this.createNetworkMesh(
-              gridOccupantComponent,
-              displayComponent,
-              networkComponent,
-            )
-          : this.createGridOccupantMesh(
-              gridOccupantComponent,
-              displayComponent,
-            );
+          ? RenderSystem.createNetworkMesh(displayComponent, networkComponent)
+          : beltComponent
+            ? RenderSystem.createBeltMesh(displayComponent, beltComponent)
+            : RenderSystem.createGridOccupantMesh(
+                gridOccupantComponent,
+                displayComponent,
+              );
 
+        const { x, y } = gridOccupantComponent;
+        newMesh.position.set(x, 0, y);
         context.scene.add(newMesh);
         this.entityMeshes.set(entity.id, newMesh);
       }
     }
   }
 
-  createGridOccupantMesh(
-    { x, y, width, height }: GridOccupantComponent,
+  static createGridOccupantMesh(
+    { width, height }: Pick<GridOccupantComponent, "width" | "height">,
     displayComponent: DisplayComponent,
   ) {
     const margin = new THREE.Vector3(0.3, 0.01, 0.3);
@@ -67,48 +69,81 @@ export class RenderSystem implements System {
     const cube = new THREE.Mesh(geometry, material);
     cube.castShadow = true;
     cube.receiveShadow = true;
-    cube.position.set(x, 0, y);
 
     return cube;
   }
 
-  createNetworkMesh(
-    { x, y }: GridOccupantComponent,
+  static createBeltMesh(
+    _displayComponent: DisplayComponent,
+    beltComponent: BeltComponent,
+  ) {
+    const group = new THREE.Group();
+    const [thickness, height, length] = [0.5, 0.2, 0.3333];
+    const rects = [new THREE.BoxGeometry(thickness, height, thickness)];
+
+    for (const dir of [beltComponent.prev, beltComponent.next]) {
+      let rect;
+      if (dir === "top") {
+        rect = new THREE.BoxGeometry(thickness, height, length);
+        rect.translate(0, 0, -length);
+      } else if (dir === "bottom") {
+        rect = new THREE.BoxGeometry(thickness, height, length);
+        rect.translate(0, 0, length);
+      } else if (dir === "right") {
+        rect = new THREE.BoxGeometry(length, height, thickness);
+        rect.translate(length, 0, 0);
+      } else if (dir === "left") {
+        rect = new THREE.BoxGeometry(length, height, thickness);
+        rect.translate(-length, 0, 0);
+      }
+
+      if (rect) rects.push(rect);
+    }
+
+    rects.forEach((rect, idx) => {
+      rect.translate(0.5, 0, 0.5);
+      // Distinguish prev
+      const color = idx === 1 ? 0x1144dd : 0x44aaff;
+      group.add(new THREE.Mesh(rect, new THREE.MeshLambertMaterial({ color })));
+    });
+
+    return group;
+  }
+
+  static createNetworkMesh(
     _displayComponent: DisplayComponent,
     networkComponent: NetworkComponent,
   ) {
     const group = new THREE.Group();
 
-    const rect = new THREE.BoxGeometry(0.3333, 0.2, 0.3333);
-    group.add(
-      new THREE.Mesh(rect, new THREE.MeshLambertMaterial({ color: 0x11bb33 })),
-    );
-
+    const [thickness, height, length] = [0.3333, 0.2, 0.3333];
+    const rects = [new THREE.BoxGeometry(thickness, height, thickness)];
     for (const [key, value] of Object.entries(networkComponent.neighbours)) {
       if (!value) continue;
       let rect;
       if (key === "top") {
-        rect = new THREE.BoxGeometry(0.3333, 0.2, 0.6666);
-        rect.translate(0, 0, -0.3333);
+        rect = new THREE.BoxGeometry(thickness, height, length);
+        rect.translate(0, 0, -length);
       } else if (key === "bottom") {
-        rect = new THREE.BoxGeometry(0.3333, 0.2, 0.6666);
-        rect.translate(0, 0, 0.3333);
+        rect = new THREE.BoxGeometry(thickness, height, length);
+        rect.translate(0, 0, length);
       } else if (key === "right") {
-        rect = new THREE.BoxGeometry(0.6666, 0.2, 0.3333);
-        rect.translate(0.3333, 0, 0);
+        rect = new THREE.BoxGeometry(length, height, thickness);
+        rect.translate(length, 0, 0);
       } else if (key === "left") {
-        rect = new THREE.BoxGeometry(0.6666, 0.2, 0.3333);
-        rect.translate(-0.3333, 0, 0);
+        rect = new THREE.BoxGeometry(length, height, thickness);
+        rect.translate(-length, 0, 0);
       }
 
-      group.add(
-        new THREE.Mesh(
-          rect,
-          new THREE.MeshLambertMaterial({ color: 0x11bb33 }),
-        ),
-      );
+      if (rect) rects.push(rect);
     }
-    group.position.set(x + 0.5, 0, y + 0.5);
+
+    const material = new THREE.MeshLambertMaterial({ color: 0xaaaa22 });
+    for (const rect of rects) {
+      rect.translate(0.5, 0, 0.5);
+      group.add(new THREE.Mesh(rect, material));
+    }
+
     return group;
   }
 }

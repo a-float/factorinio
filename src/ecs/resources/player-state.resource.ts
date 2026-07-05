@@ -1,7 +1,7 @@
 import { buildingPrototypes } from "../prototype";
 import { Resource } from "./resource";
 
-export type Rotation = 0 | 1 | 2 | 3;
+export type Rotation = number;
 
 export type Tool =
   | {
@@ -39,6 +39,6 @@ export class PlayerStateResource extends Resource {
   }
 
   rotate() {
-    this.rotation = ((this.rotation + 1) % 4) as Rotation;
+    this.rotation = this.rotation + 1;
   }
 }

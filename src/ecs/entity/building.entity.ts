@@ -1,3 +1,4 @@
+import { BeltComponent } from "../components/belt.component";
 import { DisplayComponent } from "../components/display.component";
 import {
   getRotatedFootprint,
@@ -35,8 +36,12 @@ export class BuildingEntity extends Entity {
     this.addComponent(new DisplayComponent(prototype.size.y, prototype.color));
 
     // TODO Don't base it on name
-    if (prototype.name === "Basic Belt") {
+    if (prototype.name === "Basic Pipe") {
       this.addComponent(new NetworkComponent());
+    }
+
+    if (prototype.name === "Basic Belt") {
+      this.addComponent(new BeltComponent("left", "right"));
     }
   }
 }

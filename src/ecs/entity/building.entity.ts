@@ -33,7 +33,7 @@ export class BuildingEntity extends Entity {
       ),
     );
     this.addComponent(new DisplayComponent(prototype.size.y, prototype.color));
-    
+
     // TODO Don't base it on name
     if (prototype.name === "Basic Belt") {
       this.addComponent(new NetworkComponent());

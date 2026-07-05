@@ -20,6 +20,7 @@ function getOppositeDirection(dir: keyof typeof NEIGHBOR_OFFSETS) {
   }
 }
 
+// TODO It's more of a pipe implementation
 export class NetworkSystem extends System {
   update(_deltaTime: number, context: SystemContext): void {
     const events = context.getResource("eventQueue").events;
@@ -55,7 +56,6 @@ export class NetworkSystem extends System {
         }
         entity.getComponent("display")?.setDirty(true);
       }
-      console.log("Found neighbours", networkComp.neighbours);
     }
   }
 }

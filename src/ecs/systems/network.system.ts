@@ -21,7 +21,7 @@ export class NetworkSystem extends System {
         const offset = NEIGHBOR_OFFSETS[dir];
         const neighbourId = grid.getEntityIdAtCell(
           x + offset.dx * width,
-          y + offset.dy * height,
+          y + offset.dz * height,
         );
         if (!neighbourId) continue;
         const entity = context.entityManager.getEntity(neighbourId);

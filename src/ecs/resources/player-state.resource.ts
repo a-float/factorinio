@@ -22,6 +22,7 @@ export class PlayerStateResource extends Resource {
   ];
   private activeTool: Tool = this.tools[0];
   private rotation: Rotation = 0;
+  public intersect: { x: number; z: number } = { x: 0, z: 0 };
 
   setActiveTool(tool: Tool) {
     // TODO rethink

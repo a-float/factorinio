@@ -3,30 +3,33 @@ import type { ComponentMap } from "../components/component.map.ts";
 import type { EntityPrototype } from "../prototype";
 
 export class Entity {
-  private static internalIdCounter = 1;
+  private static internalIdCounter = Date.now() + 1;
   readonly name: string;
   readonly id: number;
-  private components = new Map<string, Component>();
+  private components: Record<string, Component> = {};
 
   constructor(prototype: EntityPrototype) {
     this.id = Entity.internalIdCounter++;
     this.name = prototype.name;
   }
 
-  getComponent<K extends keyof ComponentMap>(componentName: K) {
-    return this.components.get(componentName) as ComponentMap[K] | undefined;
+  static getComponent<K extends keyof ComponentMap>(
+    entity: Entity,
+    componentName: K,
+  ) {
+    return entity.components[componentName] as ComponentMap[K] | undefined;
   }
 
-  addComponent<T extends Component>(component: T): void {
-    if (this.components.has(component.id)) {
+  static addComponent<T extends Component>(entity: Entity, component: T): void {
+    if (Object.hasOwn(entity.components, component.id)) {
       console.warn(
-        `Entity ${this.id} already has a component with id ${component.id}. Overwriting it.`,
+        `Entity ${entity.id} already has a component with id ${component.id}. Overwriting it.`,
       );
     }
-    this.components.set(component.id, component);
+    entity.components[component.id] = component;
   }
 
-  removeComponent(componentName: string): void {
-    this.components.delete(componentName);
+  static removeComponent(entity: Entity, componentName: string): void {
+    delete entity.components[componentName];
   }
 }

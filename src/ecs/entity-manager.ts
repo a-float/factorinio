@@ -1,8 +1,9 @@
 import type { ComponentName } from "./components/component.map";
 import { DeletedComponent } from "./components/deleted.component";
-import type { Entity } from "./entity/entity";
+import { Entity } from "./entity/entity";
+import { Serializable } from "./serializable";
 
-export class EntityManager {
+export class EntityManager extends Serializable {
   private entities: Map<number, Entity> = new Map();
   private toMarkAsDeleted: Entity[] = [];
 
@@ -18,7 +19,7 @@ export class EntityManager {
     });
 
     this.toMarkAsDeleted.forEach((entity) => {
-      entity.addComponent(new DeletedComponent());
+      Entity.addComponent(entity, new DeletedComponent());
     });
 
     this.toMarkAsDeleted.length = 0;
@@ -40,10 +41,19 @@ export class EntityManager {
   queryEntities(componentNames: ComponentName[]): Entity[] {
     const result: Entity[] = [];
     for (const entity of this.entities.values()) {
-      if (componentNames.every((name) => entity.getComponent(name))) {
+      if (componentNames.every((name) => Entity.getComponent(entity, name))) {
         result.push(entity);
       }
     }
     return result;
+  }
+
+  serialize() {
+    return JSON.stringify({ entities: [...this.entities.entries()] });
+  }
+
+  hydrate(state: string): void {
+    const parsed = JSON.parse(state);
+    this.entities = new Map(parsed.entities);
   }
 }

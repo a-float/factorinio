@@ -34,9 +34,6 @@ export class World {
 
     window.world = this;
     registerListeners();
-  }
-
-  setup() {
     window.addEventListener("resize", () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
@@ -44,7 +41,9 @@ export class World {
     });
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 
+  setup() {
     var stats = new Stats();
     const panels = Array.from(stats.dom.children) as HTMLElement[];
     panels.forEach((panel, index) => {
@@ -119,7 +118,7 @@ export class World {
     this.systems.push(system);
   }
 
-  update(deltaTime: number): void {
+  private update(deltaTime: number): void {
     const context = {
       entityManager: this.entityManager,
       getResource: this.getResource.bind(this),
@@ -147,6 +146,33 @@ export class World {
         this.camera.position.set(0, 10, 10);
         this.controls.target.set(0, 0, 0);
       },
+      saveState: () => {
+        const state = {
+          entityManager: this.entityManager.serialize(),
+          resources: Object.entries(this.resources).map(([name, resource]) => {
+            return { name, serializedState: resource.serialize() };
+          }),
+        };
+        window.localStorage.setItem("factorinio:events", JSON.stringify(state));
+      },
+      loadState: () => {
+        const value = window.localStorage.getItem("factorinio:events");
+        if (!value) return;
+        this.systems.forEach((system) => system?.reset());
+        const state = JSON.parse(value);
+        this.entityManager.hydrate(state.entityManager);
+        state.resources.forEach(
+          ({
+            name,
+            serializedState,
+          }: {
+            name: string;
+            serializedState: string;
+          }) => {
+            this.getResource(name as any)?.hydrate(serializedState);
+          },
+        );
+      },
     };
 
     gui.domElement.addEventListener("click", (e) => {
@@ -159,5 +185,7 @@ export class World {
 
     gui.add(this.resources.config, "enableGridDebug").name("Enable Grid Debug");
     gui.add(commands, "resetCamera").name("Reset Camera");
+    gui.add(commands, "saveState").name("Save State");
+    gui.add(commands, "loadState").name("Load State");
   }
 }

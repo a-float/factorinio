@@ -2,6 +2,7 @@ import type { BeltComponent } from "../components/belt.component";
 import type { DisplayComponent } from "../components/display.component";
 import type { GridOccupantComponent } from "../components/grid-occupant.component";
 import type { NetworkComponent } from "../components/network.component";
+import { Entity } from "../entity/entity";
 import type { System, SystemContext } from "./system";
 import * as THREE from "three";
 
@@ -16,25 +17,28 @@ export class RenderSystem implements System {
     ]);
 
     for (const entity of entities) {
-      if (entity.getComponent("deleted")) {
+      if (Entity.getComponent(entity, "deleted")) {
         const mesh = this.entityMeshes.get(entity.id)!;
         context.scene.remove(mesh);
         this.entityMeshes.delete(entity.id);
         continue;
       }
 
-      const displayComponent = entity.getComponent("display")!;
-      const gridOccupantComponent = entity.getComponent("gridOccupant")!;
+      const displayComponent = Entity.getComponent(entity, "display")!;
+      const gridOccupantComponent = Entity.getComponent(
+        entity,
+        "gridOccupant",
+      )!;
 
       if (!this.entityMeshes.has(entity.id) || displayComponent.isDirty) {
-        displayComponent.setDirty(false);
+        displayComponent.isDirty = false;
         const maybePrevMesh = this.entityMeshes.get(entity.id);
         if (maybePrevMesh) {
           context.scene.remove(maybePrevMesh);
         }
 
-        const networkComponent = entity.getComponent("network");
-        const beltComponent = entity.getComponent("belt");
+        const networkComponent = Entity.getComponent(entity, "network");
+        const beltComponent = Entity.getComponent(entity, "belt");
         const newMesh = networkComponent
           ? RenderSystem.createNetworkMesh(displayComponent, networkComponent)
           : beltComponent
@@ -145,5 +149,13 @@ export class RenderSystem implements System {
     }
 
     return group;
+  }
+
+  reset() {
+    for (const obj of this.entityMeshes.values()) {
+      const scene = obj.parent as THREE.Scene | null;
+      scene?.remove(obj);
+    }
+    this.entityMeshes.clear();
   }
 }

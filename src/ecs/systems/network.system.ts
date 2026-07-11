@@ -1,4 +1,5 @@
 import { NEIGHBOR_OFFSETS, getOppositeDirection } from "../directions";
+import { Entity } from "../entity/entity";
 import { System, type SystemContext } from "./system";
 
 // TODO It's more of a pipe implementation
@@ -10,12 +11,15 @@ export class NetworkSystem extends System {
       (e) => e.type === "build" || e.type === "destroy",
     )) {
       const building = event.payload.entity;
-      const networkComp = building.getComponent("network");
+      const networkComp = Entity.getComponent(building, "network");
       if (!networkComp) continue;
 
       // Check neighbours and update network connections
       const grid = context.getResource("grid");
-      const { x, y, width, height } = building.getComponent("gridOccupant")!;
+      const { x, y, width, height } = Entity.getComponent(
+        building,
+        "gridOccupant",
+      )!;
 
       for (const dir of ["top", "right", "bottom", "left"] as const) {
         const offset = NEIGHBOR_OFFSETS[dir];
@@ -26,7 +30,7 @@ export class NetworkSystem extends System {
         if (!neighbourId) continue;
         const entity = context.entityManager.getEntity(neighbourId);
         if (!entity) continue;
-        const otherNetworkComp = entity.getComponent("network");
+        const otherNetworkComp = Entity.getComponent(entity, "network");
         if (!otherNetworkComp) continue;
 
         if (event.type === "build") {
@@ -35,7 +39,8 @@ export class NetworkSystem extends System {
         } else if (event.type === "destroy") {
           otherNetworkComp.neighbours[getOppositeDirection(dir)] = null;
         }
-        entity.getComponent("display")?.setDirty(true);
+        const displayComponent = Entity.getComponent(entity, "display");
+        if (displayComponent) displayComponent.isDirty = true;
       }
     }
   }

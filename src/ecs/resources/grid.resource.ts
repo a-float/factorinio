@@ -52,4 +52,13 @@ export class GridResource extends Resource {
       this.occupied.delete(`${cx},${cy}`);
     });
   }
+
+  serialize() {
+    return JSON.stringify({ occupied: [...this.occupied.entries()] });
+  }
+
+  hydrate(state: string): void {
+    const parsed = JSON.parse(state);
+    this.occupied = new Map(parsed.occupied);
+  }
 }

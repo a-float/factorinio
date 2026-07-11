@@ -4,6 +4,7 @@ import { getPointerWorldPosition } from "../raycast";
 import { System, type SystemContext } from "./system";
 import type { Tool } from "../resources/player-state.resource";
 import type { UserEvent } from "../events/event";
+import { Entity } from "../entity/entity";
 
 export class BuildSystem extends System {
   update(_deltaTime: number, context: SystemContext): void {
@@ -16,7 +17,7 @@ export class BuildSystem extends System {
     context.entityManager
       .queryEntities(["gridOccupant", "deleted"])
       .forEach((entity) => {
-        const gc = entity.getComponent("gridOccupant")!;
+        const gc = Entity.getComponent(entity, "gridOccupant")!;
         grid.free(gc.x, gc.y, gc.width, gc.height);
       });
   }
@@ -59,7 +60,7 @@ export class BuildSystem extends System {
 
     // TODO do not create entity if not needed
     const building = new BuildingEntity(pos.x, pos.z, rotation, tool.building);
-    const { width, height } = building.getComponent("gridOccupant")!;
+    const { width, height } = Entity.getComponent(building, "gridOccupant")!;
 
     if (grid.isEmpty(pos.x, pos.z, width, height)) {
       console.log(`Building a ${building.name} with id ${building.id}`);
@@ -95,6 +96,6 @@ export class BuildSystem extends System {
       type: "destroy",
       payload: { entity },
     });
-    entity.addComponent(new DeletedComponent());
+    Entity.addComponent(entity, new DeletedComponent());
   }
 }

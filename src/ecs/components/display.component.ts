@@ -9,8 +9,4 @@ export class DisplayComponent implements Component {
     public height: number,
     public color: THREE.ColorRepresentation,
   ) {}
-
-  setDirty(value: boolean) {
-    this.isDirty = value;
-  }
 }

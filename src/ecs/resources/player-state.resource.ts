@@ -1,4 +1,8 @@
-import { buildingPrototypes } from "../prototype";
+import {
+  buildingPrototypes,
+  freeItemPrototypes,
+  type FreeItemPrototype,
+} from "../prototype";
 import { Resource } from "./resource";
 
 export type Rotation = number;
@@ -10,7 +14,8 @@ export type Tool =
       icon: string;
       prototype: (typeof buildingPrototypes)[keyof typeof buildingPrototypes];
     }
-  | { type: "destroy"; icon: string };
+  | { type: "destroy"; icon: string }
+  | { type: "debug:placeItem"; icon: string; item: FreeItemPrototype };
 
 export class PlayerStateResource extends Resource {
   readonly tools: Tool[] = [
@@ -19,6 +24,11 @@ export class PlayerStateResource extends Resource {
         ({ type: "build", building: k, prototype: v, icon: v.icon }) as Tool,
     ),
     { type: "destroy", icon: "DEL" },
+    {
+      type: "debug:placeItem",
+      icon: freeItemPrototypes.ball.icon,
+      item: freeItemPrototypes.ball,
+    },
   ];
   private activeTool: Tool = this.tools[0];
   private rotation: Rotation = 0;
@@ -42,4 +52,11 @@ export class PlayerStateResource extends Resource {
   rotate() {
     this.rotation = this.rotation + 1;
   }
+
+  // Do not save player state
+  serialize(): string {
+    return "";
+  }
+
+  hydrate() {}
 }

@@ -9,4 +9,10 @@ export class EventQueueResource extends Resource {
     this.events.length = 0;
     this.userEvents.length = 0;
   }
+
+  // Just ignore the lost events
+  serialize(): string {
+    return "";
+  }
+  hydrate() {}
 }

@@ -24,7 +24,8 @@ export class BuildingEntity extends Entity {
       rotation,
     );
     super(prototype);
-    this.addComponent(
+    Entity.addComponent(
+      this,
       new GridOccupantComponent(
         x,
         y,
@@ -33,15 +34,18 @@ export class BuildingEntity extends Entity {
         rotation,
       ),
     );
-    this.addComponent(new DisplayComponent(prototype.size.y, prototype.color));
+    Entity.addComponent(
+      this,
+      new DisplayComponent(prototype.size.y, prototype.color),
+    );
 
     // TODO Don't base it on name
     if (prototype.name === "Basic Pipe") {
-      this.addComponent(new NetworkComponent());
+      Entity.addComponent(this, new NetworkComponent());
     }
 
     if (prototype.name === "Basic Belt") {
-      this.addComponent(new BeltComponent("left", "right"));
+      Entity.addComponent(this, new BeltComponent("left", "right"));
     }
   }
 }

@@ -1,5 +1,6 @@
 import type { Direction } from "../components/belt.component";
 import { getOppositeDirection, NEIGHBOR_OFFSETS } from "../directions";
+import { Entity } from "../entity/entity";
 import { System, type SystemContext } from "./system";
 
 export class BeltSystem extends System {
@@ -8,9 +9,9 @@ export class BeltSystem extends System {
 
     for (const event of events.filter((e) => e.type === "build")) {
       const building = event.payload.entity;
-      const beltComp = building.getComponent("belt");
+      const beltComp = Entity.getComponent(building, "belt");
       if (!beltComp) continue;
-      const { x, y } = building.getComponent("gridOccupant")!;
+      const { x, y } = Entity.getComponent(building, "gridOccupant")!;
       const { prev, next } = BeltSystem.getBeltConfigForCellAndRotation(
         { x, z: y }, // Rename is kinda confusing
         context,
@@ -47,7 +48,7 @@ export class BeltSystem extends System {
       if (!neighbourId) continue;
       const entity = context.entityManager.getEntity(neighbourId);
       if (!entity) continue;
-      const otherBelt = entity.getComponent("belt");
+      const otherBelt = Entity.getComponent(entity, "belt");
       if (!otherBelt) continue;
 
       if (otherBelt.next === getOppositeDirection(dir)) {

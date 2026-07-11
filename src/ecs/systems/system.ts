@@ -12,4 +12,5 @@ export type SystemContext = Pick<
 
 export abstract class System {
   abstract update(deltaTime: number, context: SystemContext): void;
+  reset() {}
 }

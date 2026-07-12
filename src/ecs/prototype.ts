@@ -9,6 +9,15 @@ export type EntityPrototype = {
   icon: string;
 };
 
+export type ItemPrototype = EntityPrototype & {};
+
+export const itemPrototypes = {
+  ball: {
+    name: "Ball item",
+    icon: "Place Ball",
+  },
+} as const satisfies Record<string, ItemPrototype>;
+
 export type BuildingPrototype = EntityPrototype & {
   size: THREE.Vector3;
   color: THREE.ColorRepresentation;

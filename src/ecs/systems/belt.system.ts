@@ -1,12 +1,14 @@
+import { MathUtils } from "three";
 import type { Direction } from "../components/belt.component";
-import { getOppositeDirection, NEIGHBOR_OFFSETS } from "../directions";
+import { getOppositeDirection, DIRECTION_OFFSETS } from "../directions";
 import { Entity } from "../entity/entity";
 import { System, type SystemContext } from "./system";
 
 export class BeltSystem extends System {
-  update(_deltaTime: number, context: SystemContext): void {
+  update(deltaTime: number, context: SystemContext): void {
     const events = context.getResource("eventQueue").events;
 
+    // Update belt's prev and next on build
     for (const event of events.filter((e) => e.type === "build")) {
       const building = event.payload.entity;
       const beltComp = Entity.getComponent(building, "belt");
@@ -18,6 +20,28 @@ export class BeltSystem extends System {
       );
       beltComp.prev = prev;
       beltComp.next = next;
+    }
+
+    // Move items along belts
+    for (const entity of context.entityManager.queryEntities(["belt"])) {
+      const belt = Entity.getComponent(entity, "belt")!;
+      const { x, y } = Entity.getComponent(entity, "gridOccupant")!;
+      for (const item of belt.items) {
+        item.distance = MathUtils.clamp(item.distance + deltaTime * 0.5, 0, 1); // TODO move speed to belt (look out for save states)
+        if (item.distance >= 1) {
+          const offset = DIRECTION_OFFSETS[belt.next];
+          const nextId = context
+            .getResource("grid")
+            .getEntityIdAtCell(x + offset.x, y + offset.z);
+          if (!nextId) continue;
+          const nextEntity = context.entityManager.getEntity(nextId);
+          if (!nextEntity) continue;
+          const nextBelt = Entity.getComponent(nextEntity, "belt");
+          if (!nextBelt) continue;
+          nextBelt.items.push({ ...item, distance: 0 });
+        }
+      }
+      belt.items = belt.items.filter((item) => item.distance < 1);
     }
   }
 
@@ -40,10 +64,10 @@ export class BeltSystem extends System {
     const incoming: Direction[] = [];
 
     for (const dir of dirs) {
-      const offset = NEIGHBOR_OFFSETS[dir];
+      const offset = DIRECTION_OFFSETS[dir];
       const neighbourId = grid.getEntityIdAtCell(
-        pos.x + offset.dx,
-        pos.z + offset.dz,
+        pos.x + offset.x,
+        pos.z + offset.z,
       );
       if (!neighbourId) continue;
       const entity = context.entityManager.getEntity(neighbourId);

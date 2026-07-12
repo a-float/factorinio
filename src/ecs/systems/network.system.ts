@@ -1,4 +1,4 @@
-import { NEIGHBOR_OFFSETS, getOppositeDirection } from "../directions";
+import { DIRECTION_OFFSETS, getOppositeDirection } from "../directions";
 import { Entity } from "../entity/entity";
 import { System, type SystemContext } from "./system";
 
@@ -22,10 +22,10 @@ export class NetworkSystem extends System {
       )!;
 
       for (const dir of ["top", "right", "bottom", "left"] as const) {
-        const offset = NEIGHBOR_OFFSETS[dir];
+        const offset = DIRECTION_OFFSETS[dir];
         const neighbourId = grid.getEntityIdAtCell(
-          x + offset.dx * width,
-          y + offset.dz * height,
+          x + offset.x * width,
+          y + offset.z * height,
         );
         if (!neighbourId) continue;
         const entity = context.entityManager.getEntity(neighbourId);

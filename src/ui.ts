@@ -22,7 +22,7 @@ export class RootUI extends LitElement {
     button {
       font-size: 1.5rem;
       color: white;
-      aspect-ratio: 1;
+      padding: 0.5rem;
       background-color: #232323;
       border: 1px solid #555;
 

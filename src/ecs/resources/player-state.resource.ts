@@ -1,7 +1,7 @@
 import {
   buildingPrototypes,
-  freeItemPrototypes,
-  type FreeItemPrototype,
+  itemPrototypes,
+  type ItemPrototype,
 } from "../prototype";
 import { Resource } from "./resource";
 
@@ -15,7 +15,7 @@ export type Tool =
       prototype: (typeof buildingPrototypes)[keyof typeof buildingPrototypes];
     }
   | { type: "destroy"; icon: string }
-  | { type: "debug:placeItem"; icon: string; item: FreeItemPrototype };
+  | { type: "debug:placeItem"; icon: string; item: ItemPrototype };
 
 export class PlayerStateResource extends Resource {
   readonly tools: Tool[] = [
@@ -26,8 +26,8 @@ export class PlayerStateResource extends Resource {
     { type: "destroy", icon: "DEL" },
     {
       type: "debug:placeItem",
-      icon: freeItemPrototypes.ball.icon,
-      item: freeItemPrototypes.ball,
+      icon: itemPrototypes.ball.icon,
+      item: itemPrototypes.ball,
     },
   ];
   private activeTool: Tool = this.tools[0];

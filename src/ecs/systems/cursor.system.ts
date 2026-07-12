@@ -32,7 +32,7 @@ export class CursorSystem extends System {
         ),
       );
       return mesh;
-    } else {
+    } else if (tool.type === "destroy") {
       const deleteMesh = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
@@ -44,6 +44,7 @@ export class CursorSystem extends System {
       deleteMesh.geometry.translate(0.5, 0.001, 0.5);
       return deleteMesh;
     }
+    return null;
   };
 
   update(_deltaTime: number, context: SystemContext): void {
@@ -54,11 +55,11 @@ export class CursorSystem extends System {
 
     if (this.mesh) context.scene.remove(this.mesh);
     this.mesh = this.getMesh(activeTool, context);
-    context.scene.add(this.mesh);
 
     if (!this.mesh) return;
     if (!intersect) return;
 
+    context.scene.add(this.mesh);
     if (activeTool.type === "build") {
       const { width, height } = getRotatedFootprint(
         activeTool.prototype.size.x,

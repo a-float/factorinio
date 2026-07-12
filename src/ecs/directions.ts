@@ -1,11 +1,13 @@
-export const NEIGHBOR_OFFSETS = {
-  top: { dx: 0, dz: -1 },
-  right: { dx: 1, dz: 0 },
-  bottom: { dx: 0, dz: 1 },
-  left: { dx: -1, dz: 0 },
+export const DIRECTION_OFFSETS = {
+  top: { x: 0, y: 0, z: -1 },
+  right: { x: 1, y: 0, z: 0 },
+  bottom: { x: 0, y: 0, z: 1 },
+  left: { x: -1, y: 0, z: 0 },
 } as const;
 
-export function getOppositeDirection(dir: keyof typeof NEIGHBOR_OFFSETS) {
+export type Direction = keyof typeof DIRECTION_OFFSETS;
+
+export function getOppositeDirection(dir: Direction) {
   switch (dir) {
     case "bottom":
       return "top";

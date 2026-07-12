@@ -2,13 +2,23 @@ import type { BeltComponent } from "../components/belt.component";
 import type { DisplayComponent } from "../components/display.component";
 import type { GridOccupantComponent } from "../components/grid-occupant.component";
 import type { NetworkComponent } from "../components/network.component";
+import { DIRECTION_OFFSETS } from "../directions";
 import { Entity } from "../entity/entity";
 import type { System, SystemContext } from "./system";
 import * as THREE from "three";
 
+const MAX_ITEMS = 1000;
+
 export class RenderSystem implements System {
   // TODO store mesh per type not entity
   entityMeshes: Map<number, THREE.Object3D> = new Map();
+  instancedMeshes = {
+    ball: new THREE.InstancedMesh(
+      new THREE.BoxGeometry(0.2, 0.2, 0.2),
+      new THREE.MeshBasicMaterial({ color: 0xdd22333 }),
+      MAX_ITEMS,
+    ),
+  };
 
   update(_deltaTime: number, context: SystemContext): void {
     const entities = context.entityManager.queryEntities([
@@ -54,6 +64,39 @@ export class RenderSystem implements System {
         this.entityMeshes.set(entity.id, newMesh);
       }
     }
+
+    let count = 0;
+    for (const entity of context.entityManager.queryEntities(["belt"])) {
+      const belt = Entity.getComponent(entity, "belt")!;
+      const gridOccupant = Entity.getComponent(entity, "gridOccupant")!;
+      const matrix = new THREE.Matrix4();
+      for (const item of belt.items) {
+        const pos = this.getPositionAlongPathForBeltItem(belt, item.distance);
+        pos.add({ x: gridOccupant.x + 0.5, y: 0.2, z: gridOccupant.y + 0.5 });
+        matrix.makeTranslation(pos.x, pos.y, pos.z);
+        this.instancedMeshes.ball.setMatrixAt(count, matrix);
+        count += 1;
+      }
+    }
+    this.instancedMeshes.ball.count = count;
+    if (count) {
+      this.instancedMeshes.ball.instanceMatrix.needsUpdate = true;
+      if (!this.instancedMeshes.ball.parent) {
+        context.scene.add(this.instancedMeshes.ball);
+      }
+    }
+  }
+
+  private getPositionAlongPathForBeltItem(
+    belt: BeltComponent,
+    alpha: number,
+  ): THREE.Vector3 {
+    const start = new THREE.Vector3().copy(DIRECTION_OFFSETS[belt.prev]);
+    const center = new THREE.Vector3();
+    const end = new THREE.Vector3().copy(DIRECTION_OFFSETS[belt.next]);
+
+    const curve = new THREE.QuadraticBezierCurve3(start, center, end);
+    return curve.getPoint(alpha).multiplyScalar(0.5);
   }
 
   static createGridOccupantMesh(

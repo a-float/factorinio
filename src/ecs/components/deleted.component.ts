@@ -1,5 +1,5 @@
-import type { Component } from "./component";
+import { Component } from "./component";
 
-export class DeletedComponent implements Component {
+export class DeletedComponent extends Component {
   readonly id = "deleted";
 }

@@ -1,8 +1,9 @@
 import type { BeltComponent } from "../components/belt.component";
 import type { DisplayComponent } from "../components/display.component";
 import type { GridOccupantComponent } from "../components/grid-occupant.component";
+import type { InserterComponent } from "../components/inserter.component";
 import type { NetworkComponent } from "../components/network.component";
-import { DIRECTION_OFFSETS } from "../directions";
+import { DIRECTION_OFFSETS, getRotationFromDirection } from "../directions";
 import { Entity } from "../entity/entity";
 import type { System, SystemContext } from "./system";
 import * as THREE from "three";
@@ -49,14 +50,20 @@ export class RenderSystem implements System {
 
         const networkComponent = Entity.getComponent(entity, "network");
         const beltComponent = Entity.getComponent(entity, "belt");
+        const inserterComponent = Entity.getComponent(entity, "inserter");
         const newMesh = networkComponent
           ? RenderSystem.createNetworkMesh(displayComponent, networkComponent)
-          : beltComponent
-            ? RenderSystem.createBeltMesh(displayComponent, beltComponent)
-            : RenderSystem.createGridOccupantMesh(
-                gridOccupantComponent,
+          : inserterComponent
+            ? RenderSystem.createInserterMesh(
                 displayComponent,
-              );
+                inserterComponent,
+              )
+            : beltComponent
+              ? RenderSystem.createBeltMesh(displayComponent, beltComponent)
+              : RenderSystem.createGridOccupantMesh(
+                  gridOccupantComponent,
+                  displayComponent,
+                );
 
         const { x, z } = gridOccupantComponent;
         newMesh.position.set(x, 0, z);
@@ -118,6 +125,34 @@ export class RenderSystem implements System {
     cube.receiveShadow = true;
 
     return cube;
+  }
+
+  static createInserterMesh(
+    displayComponent: DisplayComponent,
+    inserterComponent: InserterComponent,
+  ) {
+    const size = new THREE.Vector3(0.5, 0.2, 0.7);
+    const shape = new THREE.Shape();
+    shape.moveTo(-size.x / 2, -size.z / 2);
+    shape.lineTo(0, size.z / 2);
+    shape.lineTo(size.x / 2, -size.z / 2);
+    shape.lineTo(-size.x / 2, -size.z / 2);
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: size.y,
+      bevelEnabled: false,
+    });
+
+    const rot = getRotationFromDirection(inserterComponent.next);
+
+    geometry.rotateX(-Math.PI / 2);
+    geometry.rotateY((-Math.PI / 2) * rot);
+    geometry.translate(0.5, 0.02, 0.5);
+
+    const material = new THREE.MeshLambertMaterial({
+      color: displayComponent.color,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    return mesh;
   }
 
   static createBeltMesh(

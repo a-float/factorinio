@@ -4,7 +4,10 @@ import {
   getRotatedFootprint,
   GridOccupantComponent,
 } from "../components/grid-occupant.component";
+import { InserterComponent } from "../components/inserter.component";
 import { NetworkComponent } from "../components/network.component";
+import { ProducerComponent } from "../components/producer.component";
+import { getDirectionFromRotation } from "../directions";
 import { buildingPrototypes } from "../prototype";
 import type { Rotation } from "../resources/player-state.resource";
 import { Entity } from "./entity";
@@ -46,6 +49,17 @@ export class BuildingEntity extends Entity {
 
     if (prototype.name === "Basic Belt") {
       Entity.addComponent(this, new BeltComponent("left", "right"));
+    }
+
+    if (prototype.name === "Basic Miner") {
+      Entity.addComponent(this, new ProducerComponent("ball", 0.5));
+    }
+
+    if (prototype.name === "Inserter") {
+      Entity.addComponent(
+        this,
+        new InserterComponent(getDirectionFromRotation(rotation)),
+      );
     }
   }
 }

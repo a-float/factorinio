@@ -6,20 +6,33 @@ import { RenderSystem } from "./render.system";
 import { System, type SystemContext } from "./system";
 import * as THREE from "three";
 import { BeltSystem } from "./belt.system";
+import { InserterComponent } from "../components/inserter.component";
+import { getDirectionFromRotation } from "../directions";
 
 export class CursorSystem extends System {
   private mesh: THREE.Object3D | null = null;
 
   // TODO Maybe do not recreate the mesh on every update?
   private getMesh = (tool: Tool, context: SystemContext) => {
+    // TODO get rid of edge cases?
     if (tool.type === "build" && tool.prototype.name === "Basic Belt") {
       const { prev, next } = BeltSystem.getBeltConfigForCellAndRotation(
         context.getResource("playerState").intersect,
         context,
       );
       const mesh = RenderSystem.createBeltMesh(
-        new DisplayComponent(10, 0xbababa),
+        new DisplayComponent(9999, 0xbababa), // height ignored
         new BeltComponent(prev, next),
+      );
+      return mesh;
+    } else if (tool.type === "build" && tool.prototype.name === "Inserter") {
+      const rotation = context.getResource("playerState").getRotation();
+      const mesh = RenderSystem.createInserterMesh(
+        new DisplayComponent(
+          9999, // height ignored
+          new THREE.Color(tool.prototype.color).multiplyScalar(1.5),
+        ),
+        new InserterComponent(getDirectionFromRotation(rotation)),
       );
       return mesh;
     } else if (tool.type === "build") {
@@ -69,7 +82,10 @@ export class CursorSystem extends System {
       this.mesh.position.set(intersect.x, 0.0, intersect.z);
 
       // TODO Handle it without this edge case
-      if (activeTool.prototype.name !== "Basic Belt") {
+      if (
+        activeTool.prototype.name !== "Basic Belt" &&
+        activeTool.prototype.name !== "Inserter"
+      ) {
         let diff = new THREE.Vector3();
         let mod4 = rotation % 4;
         if (mod4 === 1) {

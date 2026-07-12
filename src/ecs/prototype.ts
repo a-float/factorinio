@@ -48,4 +48,10 @@ export const buildingPrototypes = {
     color: 0xaaaa22,
     icon: "PIPE",
   },
+  inserter: {
+    name: "Inserter",
+    size: new THREE.Vector3(1, 0.4, 1),
+    color: 0xaaaa22,
+    icon: "Inserter",
+  },
 } as const satisfies Record<string, BuildingPrototype>;

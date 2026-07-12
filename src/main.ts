@@ -8,6 +8,8 @@ import { NetworkSystem } from "./ecs/systems/network.system";
 import { BeltSystem } from "./ecs/systems/belt.system";
 import { EventSystem } from "./ecs/systems/event.system";
 import { DebugSystem } from "./ecs/systems/debug.system";
+import { ProductionSystem } from "./ecs/systems/production.system";
+import { InserterSystem } from "./ecs/systems/inserter.system";
 
 const world = new World();
 world.setup();
@@ -21,4 +23,6 @@ world.addSystem(new NetworkSystem());
 world.addSystem(new DebugSystem());
 world.addSystem(new BeltSystem());
 world.addSystem(new GridDisplaySystem());
+world.addSystem(new ProductionSystem());
+world.addSystem(new InserterSystem());
 world.addSystem(new RenderSystem());

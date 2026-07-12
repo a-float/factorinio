@@ -58,8 +58,8 @@ export class RenderSystem implements System {
                 displayComponent,
               );
 
-        const { x, y } = gridOccupantComponent;
-        newMesh.position.set(x, 0, y);
+        const { x, z } = gridOccupantComponent;
+        newMesh.position.set(x, 0, z);
         context.scene.add(newMesh);
         this.entityMeshes.set(entity.id, newMesh);
       }
@@ -72,7 +72,7 @@ export class RenderSystem implements System {
       const matrix = new THREE.Matrix4();
       for (const item of belt.items) {
         const pos = this.getPositionAlongPathForBeltItem(belt, item.distance);
-        pos.add({ x: gridOccupant.x + 0.5, y: 0.2, z: gridOccupant.y + 0.5 });
+        pos.add({ x: gridOccupant.x + 0.5, y: 0.2, z: gridOccupant.z + 0.5 });
         matrix.makeTranslation(pos.x, pos.y, pos.z);
         this.instancedMeshes.ball.setMatrixAt(count, matrix);
         count += 1;

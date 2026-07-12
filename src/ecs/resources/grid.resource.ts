@@ -11,14 +11,14 @@ export class GridResource extends Resource {
 
   private getCellsFromRange(
     x: number,
-    y: number,
+    z: number,
     width: number,
     height: number,
   ): [number, number][] {
     const cells: [number, number][] = [];
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
-        cells.push([x + i, y + j]);
+        cells.push([x + i, z + j]);
       }
     }
     return cells;
@@ -26,30 +26,30 @@ export class GridResource extends Resource {
 
   public isEmpty(x: number, y: number, width: number, height: number): boolean {
     return this.getCellsFromRange(x, y, width, height).every(
-      ([cx, cy]) => !this.occupied.has(`${cx},${cy}`),
+      ([cx, cz]) => !this.occupied.has(`${cx},${cz}`),
     );
   }
 
-  public getEntityIdAtCell(x: number, y: number): Entity["id"] | undefined {
-    return this.occupied.get(`${x},${y}`);
+  public getEntityIdAtCell(x: number, z: number): Entity["id"] | undefined {
+    return this.occupied.get(`${x},${z}`);
   }
 
   // ignores bounds for now
   public occupy(
     x: number,
-    y: number,
+    z: number,
     width: number,
     height: number,
     entity: Entity,
   ): void {
-    this.getCellsFromRange(x, y, width, height).forEach(([cx, cy]) => {
-      this.occupied.set(`${cx},${cy}`, entity.id);
+    this.getCellsFromRange(x, z, width, height).forEach(([cx, cz]) => {
+      this.occupied.set(`${cx},${cz}`, entity.id);
     });
   }
 
-  public free(x: number, y: number, width: number, height: number) {
-    this.getCellsFromRange(x, y, width, height).forEach(([cx, cy]) => {
-      this.occupied.delete(`${cx},${cy}`);
+  public free(x: number, z: number, width: number, height: number) {
+    this.getCellsFromRange(x, z, width, height).forEach(([cx, cz]) => {
+      this.occupied.delete(`${cx},${cz}`);
     });
   }
 

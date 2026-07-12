@@ -16,7 +16,7 @@ export class GridOccupantComponent implements Component {
 
   constructor(
     public x: number,
-    public y: number,
+    public z: number,
     public width: number,
     public height: number,
     public rotation: Rotation,

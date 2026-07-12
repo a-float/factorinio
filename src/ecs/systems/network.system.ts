@@ -16,7 +16,7 @@ export class NetworkSystem extends System {
 
       // Check neighbours and update network connections
       const grid = context.getResource("grid");
-      const { x, y, width, height } = Entity.getComponent(
+      const { x, z, width, height } = Entity.getComponent(
         building,
         "gridOccupant",
       )!;
@@ -25,7 +25,7 @@ export class NetworkSystem extends System {
         const offset = DIRECTION_OFFSETS[dir];
         const neighbourId = grid.getEntityIdAtCell(
           x + offset.x * width,
-          y + offset.z * height,
+          z + offset.z * height,
         );
         if (!neighbourId) continue;
         const entity = context.entityManager.getEntity(neighbourId);

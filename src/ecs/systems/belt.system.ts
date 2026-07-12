@@ -13,9 +13,9 @@ export class BeltSystem extends System {
       const building = event.payload.entity;
       const beltComp = Entity.getComponent(building, "belt");
       if (!beltComp) continue;
-      const { x, y } = Entity.getComponent(building, "gridOccupant")!;
+      const { x, z } = Entity.getComponent(building, "gridOccupant")!;
       const { prev, next } = BeltSystem.getBeltConfigForCellAndRotation(
-        { x, z: y }, // Rename is kinda confusing
+        { x, z },
         context,
       );
       beltComp.prev = prev;
@@ -25,14 +25,14 @@ export class BeltSystem extends System {
     // Move items along belts
     for (const entity of context.entityManager.queryEntities(["belt"])) {
       const belt = Entity.getComponent(entity, "belt")!;
-      const { x, y } = Entity.getComponent(entity, "gridOccupant")!;
+      const { x, z } = Entity.getComponent(entity, "gridOccupant")!;
       for (const item of belt.items) {
         item.distance = MathUtils.clamp(item.distance + deltaTime * 0.5, 0, 1); // TODO move speed to belt (look out for save states)
         if (item.distance >= 1) {
           const offset = DIRECTION_OFFSETS[belt.next];
           const nextId = context
             .getResource("grid")
-            .getEntityIdAtCell(x + offset.x, y + offset.z);
+            .getEntityIdAtCell(x + offset.x, z + offset.z);
           if (!nextId) continue;
           const nextEntity = context.entityManager.getEntity(nextId);
           if (!nextEntity) continue;

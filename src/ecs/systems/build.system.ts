@@ -18,7 +18,7 @@ export class BuildSystem extends System {
       .queryEntities(["gridOccupant", "deleted"])
       .forEach((entity) => {
         const gc = Entity.getComponent(entity, "gridOccupant")!;
-        grid.free(gc.x, gc.y, gc.width, gc.height);
+        grid.free(gc.x, gc.z, gc.width, gc.height);
       });
   }
 
